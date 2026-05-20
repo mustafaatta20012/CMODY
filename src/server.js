@@ -185,6 +185,11 @@ process.on("SIGINT", async () => {
 
 if (!process.env.VERCEL) {
   startServer();
+
+  // ── Unhandled Promise Rejection Handler ────────────────────────
+  process.on('unhandledRejection', (reason, promise) => {
+    logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
+  });
 } else {
   // In Vercel, we export the app and let Vercel handle the initialization
   // Prisma will auto-connect on the first database query.
