@@ -71,3 +71,7 @@
     "node": ">=18.0.0"
   }
 }
+"scripts": {
+  "build": "prisma generate && node server.js",
+  "start": "node server.js"
+}
