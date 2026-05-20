@@ -154,15 +154,19 @@ async function startServer() {
     // await connectRedis();
     // logger.info("✅ Redis connected");
 
-    app.listen(PORT, () => {
-      logger.info(`🚀 GODMODE API running on port ${PORT}`);
-      logger.info(`📍 API base: http://localhost:${PORT}${API_PREFIX}`);
-      logger.info(`🏥 Health:   http://localhost:${PORT}/health`);
-      logger.info(`🌍 Env: ${process.env.NODE_ENV}`);
-    });
+    if (!process.env.VERCEL) {
+      app.listen(PORT, () => {
+        logger.info(`🚀 GODMODE API running on port ${PORT}`);
+        logger.info(`📍 API base: http://localhost:${PORT}${API_PREFIX}`);
+        logger.info(`🏥 Health:   http://localhost:${PORT}/health`);
+        logger.info(`🌍 Env: ${process.env.NODE_ENV}`);
+      });
+    } else {
+      logger.info(`🚀 GODMODE API running in Vercel Serverless mode`);
+    }
   } catch (error) {
     logger.error("❌ Failed to start server:", error);
-    process.exit(1);
+    if (!process.env.VERCEL) process.exit(1);
   }
 }
 
@@ -179,6 +183,11 @@ process.on("SIGINT", async () => {
   process.exit(0);
 });
 
-startServer();
+if (!process.env.VERCEL) {
+  startServer();
+} else {
+  // In Vercel, we export the app and let Vercel handle the initialization
+  // Prisma will auto-connect on the first database query.
+}
 
 module.exports = app;

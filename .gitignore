@@ -6,3 +6,8 @@ build/
 *.log
 coverage/
 .prisma/
+server/firebase/serviceAccountKey.json
+*.json
+!package.json
+!package-lock.json
+.vercel/
