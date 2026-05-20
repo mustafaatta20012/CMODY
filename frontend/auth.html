@@ -1,0 +1,1501 @@
+<!doctype html>
+<html lang="en" data-bs-theme="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CMODY</title>
+
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css"
+      rel="stylesheet"
+    />
+     <script src="api.js"></script> 
+     <script src="i18n.js"></script>
+    <link
+      href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css"
+      rel="stylesheet"
+    />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Jost:wght@300;400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <style>
+      :root {
+        --gold: #c9a84c;
+        --gold-light: #e5c77e;
+        --gold-dark: #a07428;
+        --brown-deep: #0d0700;
+        --brown-dark: #1a0e00;
+        --brown-mid: #2a1a00;
+        --brown-card: #1f1200;
+        --text-muted-custom: #a07840;
+        --transition: all 0.35s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      [data-bs-theme="dark"] {
+        --bs-body-bg: #0d0700;
+        --bs-body-color: #f5e6d3;
+        --bs-border-color: rgba(201, 168, 76, 0.22);
+        --card-bg: rgba(20, 10, 0, 0.55);
+        --input-bg: rgba(42, 26, 0, 0.7);
+        --input-border: rgba(201, 168, 76, 0.25);
+        --input-color: #f5e6d3;
+        --label-color: #a07840;
+        --muted: #a07840;
+      }
+      [data-bs-theme="light"] {
+        --bs-body-bg: #f9f1e3;
+        --bs-body-color: #1a0e00;
+        --bs-border-color: rgba(160, 116, 40, 0.25);
+        --card-bg: rgba(255, 248, 238, 0.55);
+        --input-bg: rgba(242, 229, 202, 0.8);
+        --input-border: rgba(160, 116, 40, 0.3);
+        --input-color: #1a0e00;
+        --label-color: #6b4c1e;
+        --muted: #8b6230;
+      }
+
+      *,
+      *::before,
+      *::after {
+        box-sizing: border-box;
+        margin: 0;
+        padding: 0;
+      }
+
+      body {
+        font-family: "Jost", sans-serif;
+        background: var(--bs-body-bg);
+        color: var(--bs-body-color);
+        min-height: 100vh;
+        overflow-x: hidden;
+        transition:
+          background 0.4s ease,
+          color 0.4s ease;
+      }
+
+      /* ── BACKGROUND MESH ── */
+      .auth-bg {
+        position: fixed;
+        inset: 0;
+        z-index: 0;
+        overflow: hidden;
+      }
+      .auth-bg::before {
+        content: "";
+        position: absolute;
+        inset: 0;
+        background:
+          radial-gradient(
+            ellipse 60% 50% at 15% 30%,
+            rgba(201, 168, 76, 0.08) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 50% 60% at 85% 70%,
+            rgba(201, 168, 76, 0.06) 0%,
+            transparent 60%
+          );
+      }
+      [data-bs-theme="light"] .auth-bg::before {
+        background:
+          radial-gradient(
+            ellipse 60% 50% at 15% 30%,
+            rgba(201, 168, 76, 0.12) 0%,
+            transparent 60%
+          ),
+          radial-gradient(
+            ellipse 50% 60% at 85% 70%,
+            rgba(201, 168, 76, 0.09) 0%,
+            transparent 60%
+          );
+      }
+      .auth-bg-grid {
+        position: absolute;
+        inset: 0;
+        background-image:
+          linear-gradient(rgba(201, 168, 76, 0.04) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(201, 168, 76, 0.04) 1px, transparent 1px);
+        background-size: 48px 48px;
+      }
+      [data-bs-theme="light"] .auth-bg-grid {
+        background-image:
+          linear-gradient(rgba(160, 116, 40, 0.07) 1px, transparent 1px),
+          linear-gradient(90deg, rgba(160, 116, 40, 0.07) 1px, transparent 1px);
+      }
+
+      /* ── WRAPPER ── */
+      .auth-wrapper {
+        position: relative;
+        z-index: 1;
+        min-height: 100vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 80px 16px 24px;
+      }
+
+      /* ── CARD — Glassmorphism ── */
+      .auth-card {
+        background: var(--card-bg);
+        backdrop-filter: blur(24px) saturate(160%);
+        -webkit-backdrop-filter: blur(24px) saturate(160%);
+        border: 1px solid var(--bs-border-color);
+        border-top: 1px solid rgba(201, 168, 76, 0.35);
+        border-left: 1px solid rgba(201, 168, 76, 0.18);
+        border-radius: 20px;
+        padding: 40px 36px;
+        width: 100%;
+        max-width: 440px;
+        box-shadow:
+          0 24px 64px rgba(0, 0, 0, 0.45),
+          inset 0 1px 0 rgba(255, 255, 255, 0.06);
+        animation: cardIn 0.5s cubic-bezier(0.4, 0, 0.2, 1) both;
+        transition:
+          background 0.4s ease,
+          border-color 0.4s ease;
+      }
+      [data-bs-theme="light"] .auth-card {
+        border-top: 1px solid rgba(201, 168, 76, 0.45);
+        border-left: 1px solid rgba(201, 168, 76, 0.25);
+        box-shadow:
+          0 24px 64px rgba(0, 0, 0, 0.1),
+          inset 0 1px 0 rgba(255, 255, 255, 0.7);
+      }
+      @keyframes cardIn {
+        from {
+          opacity: 0;
+          transform: translateY(24px) scale(0.98);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0) scale(1);
+        }
+      }
+
+      /* ── LOGO ── */
+      .auth-logo {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        margin-bottom: 28px;
+        text-decoration: none;
+      }
+      .auth-logo-icon {
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--gold);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 18px;
+        color: var(--brown-deep);
+        flex-shrink: 0;
+      }
+      .auth-logo strong {
+        font-family: "Playfair Display", serif;
+        font-size: 16px;
+        letter-spacing: 2px;
+        color: var(--gold);
+      }
+      .auth-logo span {
+        font-size: 9px;
+        letter-spacing: 4px;
+        color: var(--muted);
+        display: block;
+      }
+
+      /* ── TITLE ── */
+      .auth-title {
+        font-family: "Playfair Display", serif;
+        font-size: 26px;
+        font-weight: 700;
+        color: var(--bs-body-color);
+        margin-bottom: 6px;
+        line-height: 1.2;
+      }
+      .auth-subtitle {
+        font-size: 13px;
+        color: var(--muted);
+        margin-bottom: 28px;
+        line-height: 1.6;
+      }
+
+      /* ── TABS ── */
+      .auth-tabs {
+        display: flex;
+        gap: 4px;
+        background: var(--input-bg);
+        border-radius: 10px;
+        padding: 4px;
+        margin-bottom: 28px;
+        border: 1px solid var(--bs-border-color);
+      }
+      .auth-tab {
+        flex: 1;
+        padding: 9px;
+        border: none;
+        border-radius: 7px;
+        font-family: "Jost", sans-serif;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        cursor: pointer;
+        transition: var(--transition);
+        background: transparent;
+        color: var(--muted);
+      }
+      .auth-tab.active {
+        background: var(--gold);
+        color: var(--brown-deep);
+      }
+
+      /* ── FORM CONTROLS ── */
+      .form-label-custom {
+        font-size: 11px;
+        font-weight: 700;
+        letter-spacing: 1px;
+        text-transform: uppercase;
+        color: var(--label-color);
+        margin-bottom: 7px;
+        display: block;
+      }
+      .input-group-custom {
+        position: relative;
+        margin-bottom: 16px;
+      }
+      .input-icon {
+        position: absolute;
+        left: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+        font-size: 15px;
+        pointer-events: none;
+        z-index: 2;
+        transition: color 0.25s;
+      }
+      .form-control-custom {
+        width: 100%;
+        padding: 11px 42px 11px 42px;
+        background: var(--input-bg);
+        border: 1px solid var(--input-border);
+        border-radius: 8px;
+        color: var(--input-color);
+        font-family: "Jost", sans-serif;
+        font-size: 13px;
+        outline: none;
+        transition: var(--transition);
+        -webkit-appearance: none;
+      }
+      .form-control-custom::placeholder {
+        color: var(--muted);
+        opacity: 0.6;
+      }
+      .form-control-custom:focus {
+        border-color: var(--gold);
+        box-shadow: 0 0 0 3px rgba(201, 168, 76, 0.12);
+      }
+      .form-control-custom:focus + .input-icon,
+      .input-group-custom:focus-within .input-icon {
+        color: var(--gold);
+      }
+      .form-control-custom.is-invalid {
+        border-color: #e24b4a;
+      }
+      .form-control-custom.is-valid {
+        border-color: #4caf50;
+      }
+
+      /* toggle password */
+      .input-toggle {
+        position: absolute;
+        right: 14px;
+        top: 50%;
+        transform: translateY(-50%);
+        color: var(--muted);
+        font-size: 15px;
+        cursor: pointer;
+        background: none;
+        border: none;
+        padding: 0;
+        line-height: 1;
+        transition: color 0.25s;
+        z-index: 2;
+      }
+      .input-toggle:hover {
+        color: var(--gold);
+      }
+
+      .field-error {
+        font-size: 11px;
+        color: #e24b4a;
+        margin-top: -10px;
+        margin-bottom: 12px;
+        display: none;
+        padding-left: 2px;
+      }
+      .field-error.show {
+        display: block;
+      }
+
+      /* strength bar */
+      .strength-bar-wrap {
+        height: 4px;
+        border-radius: 2px;
+        background: var(--input-bg);
+        margin-top: -10px;
+        margin-bottom: 6px;
+        overflow: hidden;
+        display: none;
+      }
+      .strength-bar-wrap.show {
+        display: block;
+      }
+      .strength-bar {
+        height: 100%;
+        border-radius: 2px;
+        transition:
+          width 0.4s ease,
+          background 0.4s ease;
+        width: 0%;
+      }
+      .strength-label {
+        font-size: 10px;
+        color: var(--muted);
+        margin-bottom: 12px;
+        display: none;
+      }
+      .strength-label.show {
+        display: block;
+      }
+
+      /* divider */
+      .auth-divider {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        margin: 20px 0;
+        color: var(--muted);
+        font-size: 11px;
+      }
+      .auth-divider::before,
+      .auth-divider::after {
+        content: "";
+        flex: 1;
+        height: 1px;
+        background: var(--bs-border-color);
+      }
+
+      /* social btn */
+      .btn-social {
+        width: 100%;
+        padding: 11px;
+        background: var(--input-bg);
+        border: 1px solid var(--bs-border-color);
+        border-radius: 8px;
+        color: var(--bs-body-color);
+        font-family: "Jost", sans-serif;
+        font-size: 13px;
+        font-weight: 500;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 10px;
+      }
+      .btn-social:hover {
+        border-color: var(--gold);
+        color: var(--gold);
+      }
+
+      /* submit */
+      .btn-auth {
+        width: 100%;
+        padding: 13px;
+        background: var(--gold);
+        color: var(--brown-deep);
+        border: none;
+        border-radius: 8px;
+        font-family: "Jost", sans-serif;
+        font-size: 13px;
+        font-weight: 800;
+        letter-spacing: 1.5px;
+        text-transform: uppercase;
+        cursor: pointer;
+        transition: var(--transition);
+        margin-top: 6px;
+        position: relative;
+        overflow: hidden;
+      }
+      .btn-auth:hover:not(:disabled) {
+        background: var(--gold-light);
+        transform: translateY(-1px);
+        box-shadow: 0 8px 24px rgba(201, 168, 76, 0.3);
+      }
+      .btn-auth:disabled {
+        opacity: 0.7;
+        cursor: not-allowed;
+        transform: none;
+      }
+      .btn-auth .spinner {
+        display: none;
+        width: 16px;
+        height: 16px;
+        border: 2px solid rgba(26, 10, 0, 0.3);
+        border-top-color: var(--brown-deep);
+        border-radius: 50%;
+        animation: spin 0.6s linear infinite;
+      }
+      .btn-auth.loading .btn-text {
+        display: none;
+      }
+      .btn-auth.loading .spinner {
+        display: inline-block;
+      }
+      @keyframes spin {
+        to {
+          transform: rotate(360deg);
+        }
+      }
+
+      /* remember / forgot */
+      .auth-extras {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 6px;
+        flex-wrap: wrap;
+        gap: 8px;
+      }
+      .check-custom {
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        cursor: pointer;
+        font-size: 12px;
+        color: var(--muted);
+        user-select: none;
+      }
+      .check-custom input[type="checkbox"] {
+        accent-color: var(--gold);
+        width: 14px;
+        height: 14px;
+      }
+      .forgot-link {
+        font-size: 12px;
+        color: var(--gold);
+        text-decoration: none;
+        transition: color 0.2s;
+      }
+      .forgot-link:hover {
+        color: var(--gold-light);
+      }
+
+      /* switch prompt */
+      .auth-switch {
+        text-align: center;
+        margin-top: 20px;
+        font-size: 12px;
+        color: var(--muted);
+      }
+      .auth-switch a {
+        color: var(--gold);
+        font-weight: 600;
+        text-decoration: none;
+        cursor: pointer;
+      }
+      .auth-switch a:hover {
+        color: var(--gold-light);
+      }
+
+      /* ── THEME TOGGLE ── */
+      .theme-btn {
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        width: 40px;
+        height: 40px;
+        border-radius: 50%;
+        background: var(--card-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--bs-border-color);
+        color: var(--gold);
+        font-size: 16px;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 100;
+      }
+      .theme-btn:hover {
+        border-color: var(--gold);
+        transform: scale(1.08);
+      }
+
+      /* ── BACK TO STORE ── */
+      .back-btn {
+        position: fixed;
+        top: 20px;
+        left: 20px;
+        display: flex;
+        align-items: center;
+        gap: 7px;
+        color: var(--muted);
+        text-decoration: none;
+        font-size: 12px;
+        font-weight: 600;
+        letter-spacing: 0.5px;
+        transition: var(--transition);
+        background: var(--card-bg);
+        backdrop-filter: blur(16px);
+        -webkit-backdrop-filter: blur(16px);
+        border: 1px solid var(--bs-border-color);
+        padding: 8px 14px;
+        border-radius: 30px;
+        z-index: 100;
+      }
+      .back-btn:hover {
+        color: var(--gold);
+        border-color: var(--gold);
+        transform: translateX(-2px);
+      }
+
+      /* ── ALERT ── */
+      .auth-alert {
+        padding: 11px 14px;
+        border-radius: 8px;
+        font-size: 12px;
+        margin-bottom: 18px;
+        display: none;
+        align-items: center;
+        gap: 8px;
+        animation: fadeUp 0.3s ease;
+      }
+      .auth-alert.show {
+        display: flex;
+      }
+      .auth-alert.success {
+        background: rgba(76, 175, 80, 0.12);
+        border: 1px solid rgba(76, 175, 80, 0.3);
+        color: #4caf50;
+      }
+      .auth-alert.error {
+        background: rgba(226, 75, 74, 0.1);
+        border: 1px solid rgba(226, 75, 74, 0.3);
+        color: #e24b4a;
+      }
+      @keyframes fadeUp {
+        from {
+          opacity: 0;
+          transform: translateY(6px);
+        }
+        to {
+          opacity: 1;
+          transform: translateY(0);
+        }
+      }
+
+      /* ── LOGOUT CARD ── */
+      .logout-avatar {
+        width: 72px;
+        height: 72px;
+        border-radius: 50%;
+        background: linear-gradient(135deg, var(--gold-dark), var(--gold));
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 28px;
+        color: var(--brown-deep);
+        margin: 0 auto 16px;
+        font-family: "Playfair Display", serif;
+        font-weight: 700;
+        letter-spacing: 1px;
+      }
+      .logout-name {
+        font-family: "Playfair Display", serif;
+        font-size: 20px;
+        text-align: center;
+        margin-bottom: 4px;
+      }
+      .logout-email {
+        font-size: 12px;
+        color: var(--muted);
+        text-align: center;
+        margin-bottom: 24px;
+      }
+      .btn-logout {
+        width: 100%;
+        padding: 12px;
+        background: transparent;
+        border: 1px solid rgba(226, 75, 74, 0.4);
+        border-radius: 8px;
+        color: #e24b4a;
+        font-family: "Jost", sans-serif;
+        font-size: 13px;
+        font-weight: 700;
+        cursor: pointer;
+        transition: var(--transition);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 8px;
+      }
+      .btn-logout:hover {
+        background: rgba(226, 75, 74, 0.08);
+        border-color: #e24b4a;
+      }
+
+      /* ── SESSION BADGE ── */
+      .session-info {
+        background: var(--input-bg);
+        border: 1px solid var(--bs-border-color);
+        border-radius: 10px;
+        padding: 14px 16px;
+        margin-bottom: 20px;
+      }
+      .session-row {
+        display: flex;
+        justify-content: space-between;
+        font-size: 11px;
+        padding: 4px 0;
+        color: var(--muted);
+      }
+      .session-row span:last-child {
+        color: var(--bs-body-color);
+        font-weight: 500;
+      }
+
+      /* ── FORGOT PASSWORD PANEL ── */
+      .panel {
+        display: none;
+      }
+      .panel.active {
+        display: block;
+        animation: fadeUp 0.3s ease;
+      }
+
+      /* responsive */
+      @media (max-width: 600px) {
+        .auth-card {
+          padding: 28px 20px;
+          border-radius: 16px;
+        }
+        .auth-title {
+          font-size: 22px;
+        }
+        .back-btn span {
+          display: none;
+        }
+      }
+      @media (max-width: 400px) {
+        .auth-card {
+          padding: 22px 16px;
+          max-width: 100%;
+        }
+        .auth-title {
+          font-size: 20px;
+        }
+      }
+    </style>
+    <link href="https://fonts.googleapis.com/css2?family=Cairo:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+    <style id="rtl-fixes">
+      body.rtl-mode {
+        font-family: 'Cairo', 'Jost', sans-serif;
+      }
+      body.rtl-mode .auth-title, body.rtl-mode .auth-logo strong {
+        font-family: 'Cairo', 'Playfair Display', serif;
+      }
+      body.rtl-mode .input-icon {
+        left: auto;
+        right: 14px;
+      }
+      body.rtl-mode .form-control-custom {
+        padding-left: 14px;
+        padding-right: 42px;
+      }
+      body.rtl-mode .input-toggle {
+        right: auto;
+        left: 14px;
+      }
+      body.rtl-mode .check-custom {
+        margin-right: 0;
+      }
+      body.rtl-mode .theme-btn {
+        right: auto;
+        left: 20px;
+      }
+      body.rtl-mode .back-btn {
+        left: auto;
+        right: 20px;
+        flex-direction: row-reverse;
+      }
+      body.rtl-mode .back-btn i {
+        transform: rotate(180deg);
+      }
+    </style>
+  </head>
+  <body>
+    <!-- BG -->
+    <div class="auth-bg">
+      <div class="auth-bg-grid"></div>
+    </div>
+
+    <!-- BACK -->
+    <a class="back-btn" href="coffeNew.html">
+      <i class="bi bi-arrow-left"></i>
+      <span>Back to Store</span>
+    </a>
+
+    <!-- THEME TOGGLE -->
+    <button class="theme-btn" onclick="toggleTheme()" title="Toggle theme">
+      <i class="bi bi-moon-stars" id="theme-icon"></i>
+    </button>
+    <button class="theme-btn" onclick="i18n.toggle()" title="Toggle language" style="right: 70px;" id="lang-toggle-btn">
+      🌐
+    </button>
+
+    <!-- MAIN -->
+    <div class="auth-wrapper">
+      <div class="auth-card" id="auth-card">
+        <!-- LOGO -->
+        <a class="auth-logo" href="coffeNew.html">
+          <div class="auth-logo-icon">☕</div>
+          <div>
+            <strong>CMODY</strong>
+          </div>
+        </a>
+
+        <!-- ══ LOGIN PANEL ══ -->
+        <div class="panel active" id="panel-login">
+          <h1 class="auth-title">Welcome back</h1>
+          <p class="auth-subtitle">
+            Sign in to your account to continue shopping
+          </p>
+
+          <!-- TABS -->
+          <div class="auth-tabs">
+            <button class="auth-tab active" onclick="switchTab('login')">
+              Sign In
+            </button>
+            <button class="auth-tab" onclick="switchTab('register')">
+              Register
+            </button>
+          </div>
+
+          <!-- ALERT -->
+          <div class="auth-alert" id="login-alert"></div>
+
+          <!-- SOCIAL -->
+          <button class="btn-social mb-2" onclick="socialLogin('Google')">
+            <svg width="16" height="16" viewbox="0 0 24 24" fill="none">
+              <path
+                d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"
+                fill="#4285F4"
+              />
+              <path
+                d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"
+                fill="#34A853"
+              />
+              <path
+                d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l3.66-2.84z"
+                fill="#FBBC05"
+              />
+              <path
+                d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"
+                fill="#EA4335"
+              />
+            </svg>
+            Continue with Google
+          </button>
+          <button class="btn-social" onclick="socialLogin('Apple')">
+            <i class="bi bi-apple" style="font-size: 16px"></i>
+            Continue with Apple
+          </button>
+
+          <div class="auth-divider">or sign in with email</div>
+
+          <!-- EMAIL -->
+          <label class="form-label-custom">Email Address</label>
+          <div class="input-group-custom">
+            <input
+              class="form-control-custom"
+              type="email"
+              id="login-email"
+              placeholder="you@example.com"
+              autocomplete="email"
+            />
+            <i class="bi bi-envelope input-icon"></i>
+          </div>
+          <div class="field-error" id="login-email-err">
+            Please enter a valid email
+          </div>
+
+          <!-- PASSWORD -->
+          <label class="form-label-custom">Password</label>
+          <div class="input-group-custom">
+            <input
+              class="form-control-custom"
+              type="password"
+              id="login-password"
+              placeholder="••••••••"
+              autocomplete="current-password"
+            />
+            <i class="bi bi-lock input-icon"></i>
+            <button
+              class="input-toggle"
+              onclick="togglePass('login-password', this)"
+            >
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+          <div class="field-error" id="login-pass-err">
+            Password is required
+          </div>
+
+          <!-- EXTRAS -->
+          <div class="auth-extras">
+            <label class="check-custom">
+              <input type="checkbox" id="remember-me" /> Remember me
+            </label>
+            <a class="forgot-link" onclick="switchPanel('forgot')"
+              >Forgot password?</a
+            >
+          </div>
+
+          <button class="btn-auth" id="login-btn" onclick="doLogin()">
+            <span class="btn-text">SIGN IN</span>
+            <div class="spinner"></div>
+          </button>
+
+          <div class="auth-switch">
+            Don't have an account?
+            <a onclick="switchTab('register')">Create one</a>
+          </div>
+        </div>
+
+        <!-- ══ REGISTER PANEL ══ -->
+        <div class="panel" id="panel-register">
+          <h1 class="auth-title">Create account</h1>
+          <p class="auth-subtitle">Join CMODY and elevate your everyday</p>
+
+          <div class="auth-tabs">
+            <button class="auth-tab" onclick="switchTab('login')">
+              Sign In
+            </button>
+            <button class="auth-tab active" onclick="switchTab('register')">
+              Register
+            </button>
+          </div>
+
+          <div class="auth-alert" id="reg-alert"></div>
+
+          <div class="row g-2 mb-0">
+            <div class="col-6">
+              <label class="form-label-custom">First Name</label>
+              <div class="input-group-custom">
+                <input
+                  class="form-control-custom"
+                  type="text"
+                  id="reg-fname"
+                  placeholder="John"
+                />
+                <i class="bi bi-person input-icon"></i>
+              </div>
+              <div class="field-error" id="reg-fname-err">Required</div>
+            </div>
+            <div class="col-6">
+              <label class="form-label-custom">Last Name</label>
+              <div class="input-group-custom">
+                <input
+                  class="form-control-custom"
+                  type="text"
+                  id="reg-lname"
+                  placeholder="Doe"
+                />
+                <i class="bi bi-person input-icon"></i>
+              </div>
+              <div class="field-error" id="reg-lname-err">Required</div>
+            </div>
+          </div>
+
+          <label class="form-label-custom">Email Address</label>
+          <div class="input-group-custom">
+            <input
+              class="form-control-custom"
+              type="email"
+              id="reg-email"
+              placeholder="you@example.com"
+              autocomplete="email"
+            />
+            <i class="bi bi-envelope input-icon"></i>
+          </div>
+          <div class="field-error" id="reg-email-err">
+            Please enter a valid email
+          </div>
+
+          <label class="form-label-custom">Password</label>
+          <div class="input-group-custom">
+            <input
+              class="form-control-custom"
+              type="password"
+              id="reg-password"
+              placeholder="Min. 8 characters"
+              oninput="checkStrength(this.value)"
+              autocomplete="new-password"
+            />
+            <i class="bi bi-lock input-icon"></i>
+            <button
+              class="input-toggle"
+              onclick="togglePass('reg-password', this)"
+            >
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+          <div class="strength-bar-wrap" id="strength-wrap">
+            <div class="strength-bar" id="strength-bar"></div>
+          </div>
+          <div class="strength-label" id="strength-label"></div>
+          <div class="field-error" id="reg-pass-err">
+            Password must be at least 8 characters
+          </div>
+
+          <label class="form-label-custom">Confirm Password</label>
+          <div class="input-group-custom">
+            <input
+              class="form-control-custom"
+              type="password"
+              id="reg-confirm"
+              placeholder="Repeat password"
+              autocomplete="new-password"
+            />
+            <i class="bi bi-lock input-icon"></i>
+            <button
+              class="input-toggle"
+              onclick="togglePass('reg-confirm', this)"
+            >
+              <i class="bi bi-eye"></i>
+            </button>
+          </div>
+          <div class="field-error" id="reg-confirm-err">
+            Passwords do not match
+          </div>
+
+          <label class="check-custom mb-3" style="margin-top: 4px">
+            <input type="checkbox" id="reg-terms" />
+            I agree to the
+            <a href="#" style="color: var(--gold)"
+              >Terms &amp; Privacy Policy</a
+            >
+          </label>
+          <div class="field-error" id="reg-terms-err">
+            You must accept the terms
+          </div>
+
+          <button class="btn-auth" id="reg-btn" onclick="doRegister()">
+            <span class="btn-text">CREATE ACCOUNT</span>
+            <div class="spinner"></div>
+          </button>
+
+          <div class="auth-switch">
+            Already have an account? <a onclick="switchTab('login')">Sign in</a>
+          </div>
+        </div>
+
+        <!-- ══ FORGOT PASSWORD PANEL ══ -->
+        <div class="panel" id="panel-forgot">
+          <button
+            onclick="switchPanel('login')"
+            style="
+              background: none;
+              border: none;
+              color: var(--muted);
+              font-size: 12px;
+              cursor: pointer;
+              padding: 0;
+              margin-bottom: 20px;
+              display: flex;
+              align-items: center;
+              gap: 6px;
+            "
+          >
+            <i class="bi bi-arrow-left"></i> Back to sign in
+          </button>
+          <h1 class="auth-title">Reset password</h1>
+          <p class="auth-subtitle">
+            Enter your email and we'll send you a reset link
+          </p>
+
+          <div class="auth-alert" id="forgot-alert"></div>
+
+          <label class="form-label-custom">Email Address</label>
+          <div class="input-group-custom">
+            <input
+              class="form-control-custom"
+              type="email"
+              id="forgot-email"
+              placeholder="you@example.com"
+            />
+            <i class="bi bi-envelope input-icon"></i>
+          </div>
+          <div class="field-error" id="forgot-email-err">
+            Please enter a valid email
+          </div>
+
+          <button
+            class="btn-auth"
+            id="forgot-btn"
+            onclick="doForgot()"
+            style="margin-top: 14px"
+          >
+            <span class="btn-text">SEND RESET LINK</span>
+            <div class="spinner"></div>
+          </button>
+        </div>
+
+        <!-- ══ LOGGED IN / LOGOUT PANEL ══ -->
+        <div class="panel" id="panel-loggedin">
+          <div class="logout-avatar" id="user-avatar">JD</div>
+          <div class="logout-name" id="user-name">John Doe</div>
+          <div class="logout-email" id="user-email">john@example.com</div>
+
+          <div class="session-info">
+            <div class="session-row">
+              <span>Member since</span><span id="member-since">—</span>
+            </div>
+            <div class="session-row">
+              <span>Last login</span> <span id="last-login">Just now</span>
+            </div>
+            <div class="session-row">
+              <span>Session</span> <span style="color: #4caf50">● Active</span>
+            </div>
+          </div>
+
+          <a
+            href="coffeNew.html"
+            class="btn-auth d-flex align-items-center justify-content-center gap-2 mb-3 text-decoration-none"
+            style="margin-top: 0"
+          >
+            <i class="bi bi-bag"></i> Continue Shopping
+          </a>
+
+          <button class="btn-logout" onclick="doLogout()">
+            <i class="bi bi-box-arrow-right"></i> Sign Out
+          </button>
+        </div>
+      </div>
+      <!-- /auth-card -->
+    </div>
+    <!-- /auth-wrapper -->
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+    /* ═══════════════════════════════════════════════
+   CMODY — auth.js (الكود المُصلح لـ auth.html)
+   ضع هذا الكود داخل <script> في auth.html
+   بدلًا من الكود القديم
+═══════════════════════════════════════════════ */
+
+/* ═══════════════ STATE ═══════════════ */
+const Auth = {
+  user: JSON.parse(localStorage.getItem("gm_user") || "null"),
+  token: localStorage.getItem("gm_token") || null,
+
+  login(user, remember) {
+    this.user = user;
+    if (remember) {
+      localStorage.setItem("gm_user", JSON.stringify(user));
+    } else {
+      sessionStorage.setItem("gm_user", JSON.stringify(user));
+    }
+  },
+
+  logout() {
+    this.user = null;
+    this.token = null;
+    localStorage.removeItem("gm_user");
+    localStorage.removeItem("gm_token");
+    sessionStorage.removeItem("gm_user");
+    sessionStorage.removeItem("gm_token");
+  },
+
+  isLoggedIn() {
+    return !!(
+      this.user || JSON.parse(sessionStorage.getItem("gm_user") || "null")
+    );
+  },
+
+  getUser() {
+    return (
+      this.user || JSON.parse(sessionStorage.getItem("gm_user") || "null")
+    );
+  }
+};
+
+/* ═══════════════ INIT ═══════════════ */
+(function init() {
+  const saved = localStorage.getItem("gm_theme") || "dark";
+  setTheme(saved);
+
+  const u = Auth.getUser();
+  if (u) {
+    showLoggedIn(u);
+  } else {
+    const tab = new URLSearchParams(window.location.search).get("tab");
+    if (tab === "register") switchTab("register");
+    else switchPanel("login");
+  }
+})();
+
+/* ═══════════════ THEME ═══════════════ */
+function setTheme(t) {
+  document.documentElement.setAttribute("data-bs-theme", t);
+  localStorage.setItem("gm_theme", t);
+  document.getElementById("theme-icon").className =
+    t === "dark" ? "bi bi-sun" : "bi bi-moon-stars";
+}
+function toggleTheme() {
+  const cur = document.documentElement.getAttribute("data-bs-theme");
+  setTheme(cur === "dark" ? "light" : "dark");
+}
+
+/* ═══════════════ PANELS ═══════════════ */
+function switchPanel(name) {
+  document
+    .querySelectorAll(".panel")
+    .forEach((p) => p.classList.remove("active"));
+  document.getElementById("panel-" + name).classList.add("active");
+  clearAlerts();
+}
+
+function switchTab(tab) {
+  switchPanel(tab);
+  document.querySelectorAll(".auth-tab").forEach((btn, i) => {
+    btn.classList.toggle(
+      "active",
+      (tab === "login" && i % 2 === 0) || (tab === "register" && i % 2 === 1)
+    );
+  });
+}
+
+function showLoggedIn(user) {
+  switchPanel("loggedin");
+  document.getElementById("user-name").textContent =
+    (user.firstName || user.name || "User") + " " + (user.lastName || "");
+  document.getElementById("user-email").textContent = user.email;
+  const initials = (
+    (user.firstName?.[0] || user.name?.[0] || "U") +
+    (user.lastName?.[0] || "")
+  ).toUpperCase();
+  document.getElementById("user-avatar").textContent = initials;
+  const createdAt = user.createdAt
+    ? new Date(user.createdAt).toLocaleDateString("en-US", {
+        month: "short",
+        year: "numeric"
+      })
+    : "—";
+  document.getElementById("member-since").textContent = createdAt;
+}
+
+/* ═══════════════ HELPERS ═══════════════ */
+function clearAlerts() {
+  document.querySelectorAll(".auth-alert").forEach((a) => {
+    a.className = "auth-alert";
+    a.textContent = "";
+  });
+}
+function showAlert(id, msg, type = "error") {
+  const el = document.getElementById(id);
+  el.className = `auth-alert show ${type}`;
+  el.innerHTML = `<i class="bi bi-${
+    type === "error" ? "exclamation-circle" : "check-circle"
+  }"></i> ${msg}`;
+}
+function setError(inputId, errId, show) {
+  const inp = document.getElementById(inputId);
+  const err = document.getElementById(errId);
+  if (show) {
+    inp?.classList.add("is-invalid");
+    err?.classList.add("show");
+  } else {
+    inp?.classList.remove("is-invalid");
+    err?.classList.remove("show");
+  }
+  return !show;
+}
+function startLoading(btnId) {
+  const btn = document.getElementById(btnId);
+  btn.classList.add("loading");
+  btn.disabled = true;
+}
+function stopLoading(btnId) {
+  const btn = document.getElementById(btnId);
+  btn.classList.remove("loading");
+  btn.disabled = false;
+}
+function togglePass(inputId, btn) {
+  const inp = document.getElementById(inputId);
+  const isPass = inp.type === "password";
+  inp.type = isPass ? "text" : "password";
+  btn.innerHTML = `<i class="bi bi-eye${isPass ? "-slash" : ""}"></i>`;
+}
+
+/* ═══════════════ PASSWORD STRENGTH ═══════════════ */
+function checkStrength(val) {
+  const wrap = document.getElementById("strength-wrap");
+  const bar = document.getElementById("strength-bar");
+  const label = document.getElementById("strength-label");
+
+  if (!val) {
+    wrap.classList.remove("show");
+    label.classList.remove("show");
+    return;
+  }
+  wrap.classList.add("show");
+  label.classList.add("show");
+
+  let score = 0;
+  if (val.length >= 8) score++;
+  if (/[A-Z]/.test(val)) score++;
+  if (/[0-9]/.test(val)) score++;
+  if (/[^A-Za-z0-9]/.test(val)) score++;
+
+  const levels = [
+    { w: "20%", c: "#e24b4a", t: "Weak" },
+    { w: "45%", c: "#ef9f27", t: "Fair" },
+    { w: "70%", c: "#c9a84c", t: "Good" },
+    { w: "100%", c: "#4caf50", t: "Strong ✓" }
+  ];
+  const lv = levels[score - 1] || levels[0];
+  bar.style.width = lv.w;
+  bar.style.background = lv.c;
+  label.textContent = lv.t;
+  label.style.color = lv.c;
+}
+
+/* ═══════════════ LOGIN ═══════════════ */
+async function doLogin() {
+  const email = document.getElementById("login-email").value.trim();
+  const pass = document.getElementById("login-password").value;
+
+  let v = true;
+  v = setError("login-email", "login-email-err", !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) && v;
+  v = setError("login-password", "login-pass-err", !pass) && v;
+  if (!v) return;
+
+  startLoading("login-btn");
+  try {
+    const response = await api.login(email, pass);
+    if (response.success) {
+      const user = response.data.user;
+      const remember = document.getElementById("remember-me").checked;
+      Auth.login(user, remember);
+      showAlert("login-alert", "Welcome back! Redirecting...", "success");
+      setTimeout(() => {
+        showLoggedIn(user);
+        window.location.href = "coffeNew.html";
+      }, 900);
+    }
+  } catch (error) {
+    showAlert("login-alert", error.message || "Invalid email or password");
+    stopLoading("login-btn");
+  }
+}
+
+/* ═══════════════ REGISTER — FIX: يتصل بالباك ═══════════════ */
+async function doRegister() {
+  const fname = document.getElementById("reg-fname").value.trim();
+  const lname = document.getElementById("reg-lname").value.trim();
+  const email = document.getElementById("reg-email").value.trim();
+  const pass = document.getElementById("reg-password").value;
+  const confirm = document.getElementById("reg-confirm").value;
+  const terms = document.getElementById("reg-terms").checked;
+
+  let v = true;
+  v = setError("reg-fname", "reg-fname-err", !fname) && v;
+  v = setError("reg-lname", "reg-lname-err", !lname) && v;
+  v = setError("reg-email", "reg-email-err", !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) && v;
+  v = setError("reg-password", "reg-pass-err", pass.length < 8) && v;
+  v = setError("reg-confirm", "reg-confirm-err", pass !== confirm) && v;
+  v = setError("reg-terms", "reg-terms-err", !terms) && v;
+  if (!v) return;
+
+  startLoading("reg-btn");
+  try {
+    // FIX: أرسل للباك مباشرة — لا localStorage
+    const response = await api.register({
+      firstName: fname,
+      lastName: lname,
+      email,
+      password: pass
+    });
+
+    if (response.success) {
+      const user = response.data.user;
+      // احفظ بيانات المستخدم محليًا بعد نجاح الباك
+      Auth.login(user, true);
+      showAlert("reg-alert", "Account created successfully! 🎉", "success");
+      setTimeout(() => {
+        showLoggedIn(user);
+        window.location.href = "coffeNew.html";
+      }, 900);
+    }
+  } catch (error) {
+    showAlert(
+      "reg-alert",
+      error.message || "Registration failed. Please try again."
+    );
+  } finally {
+    stopLoading("reg-btn");
+  }
+}
+
+/* ═══════════════ FORGOT PASSWORD ═══════════════ */
+async function doForgot() {
+  const email = document.getElementById("forgot-email").value.trim();
+  const valid = setError(
+    "forgot-email",
+    "forgot-email-err",
+    !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)
+  );
+  if (!valid) return;
+
+  startLoading("forgot-btn");
+  try {
+    await api.forgotPassword(email);
+    showAlert(
+      "forgot-alert",
+      `Reset link sent to <strong>${email}</strong>. Check your inbox.`,
+      "success"
+    );
+  } catch (error) {
+    showAlert("forgot-alert", error.message || "Failed to send reset link.");
+  } finally {
+    stopLoading("forgot-btn");
+  }
+}
+
+/* ═══════════════ SOCIAL LOGIN ═══════════════ */
+
+function socialLogin(provider) {
+  if (provider === "Google") {
+    window.location.href = "http://localhost:4000/api/v1/auth/google";
+  }
+}
+(function handleOAuthCallback() {
+  const params   = new URLSearchParams(window.location.search);
+  const token    = params.get("token");
+  const userRaw  = params.get("user");
+  const provider = params.get("provider");
+  const error    = params.get("error");
+
+  if (error) {
+    const msg = error === "google_cancelled"
+      ? "Sign-in was cancelled."
+      : "Google sign-in failed. Please try again.";
+    switchPanel("login");
+    showAlert("login-alert", msg);
+    history.replaceState({}, "", window.location.pathname);
+    return;
+  }
+
+  if (token && userRaw && provider === "google") {
+    try {
+      const user = JSON.parse(userRaw);
+      localStorage.setItem("gm_token", token);
+      api.token = token;
+      Auth.login(user, true);
+      history.replaceState({}, "", window.location.pathname);
+      showAlert("login-alert", `Welcome, ${user.firstName}! 🎉`, "success");
+      setTimeout(() => {
+        showLoggedIn(user);
+        window.location.href = "coffeNew.html";
+      }, 800);
+    } catch (e) {
+      switchPanel("login");
+      showAlert("login-alert", "Something went wrong. Please try again.");
+      history.replaceState({}, "", window.location.pathname);
+    }
+  }
+})();
+// ── استقبال النتيجة من Google Callback ──
+(function handleOAuthCallback() {
+  const params   = new URLSearchParams(window.location.search);
+  const token    = params.get("token");
+  const userRaw  = params.get("user");
+  const provider = params.get("provider");
+  const error    = params.get("error");
+
+  // لو في error
+  if (error) {
+    const msg = error === "google_cancelled"
+      ? "Sign-in was cancelled."
+      : "Google sign-in failed. Please try again.";
+    switchPanel("login");
+    showAlert("login-alert", msg);
+    // امسح الـ query string
+    history.replaceState({}, "", window.location.pathname);
+    return;
+  }
+
+  // لو في token قادم من Google
+  if (token && userRaw && provider === "google") {
+    try {
+      const user = JSON.parse(userRaw);
+
+      // احفظ الـ token
+      localStorage.setItem("gm_token", token);
+      api.token = token; // حدّث الـ api client كمان
+
+      // احفظ المستخدم
+      Auth.login(user, true);
+
+      // امسح الـ query string فوراً (أمان)
+      history.replaceState({}, "", window.location.pathname);
+
+      // اعرض الـ logged in panel وروّح للمتجر
+      showAlert("login-alert", `Welcome, ${user.firstName}! 🎉`, "success");
+      setTimeout(() => {
+        showLoggedIn(user);
+        window.location.href = "coffeNew.html";
+      }, 800);
+
+    } catch (e) {
+      switchPanel("login");
+      showAlert("login-alert", "Something went wrong. Please try again.");
+      history.replaceState({}, "", window.location.pathname);
+    }
+  }
+})();
+
+
+/* ═══════════════ LOGOUT ═══════════════ */
+async function doLogout() {
+  try {
+    await api.logout();
+  } catch (e) {
+    console.error("Logout API failed:", e);
+  }
+  Auth.logout();
+  switchTab("login");
+  showAlert("login-alert", "You have been signed out successfully.", "success");
+}
+
+/* ── Enter key support ── */
+document.addEventListener("keydown", (e) => {
+  if (e.key !== "Enter") return;
+  const active = document.querySelector(".panel.active");
+  if (!active) return;
+  const id = active.id;
+  if (id === "panel-login") doLogin();
+  if (id === "panel-register") doRegister();
+  if (id === "panel-forgot") doForgot();
+});
+    </script>
+  </body>
+</html>

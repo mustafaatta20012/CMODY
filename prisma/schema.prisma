@@ -1,0 +1,311 @@
+// prisma/schema.prisma
+// GODMODE STORE — Database Schema
+// Run: npx prisma migrate dev --name init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+// ═══════════════════════════════════════
+//  ENUMS
+// ═══════════════════════════════════════
+
+enum Role {
+  CUSTOMER
+  ADMIN
+}
+
+enum OrderStatus {
+  PENDING
+  PAID
+  PROCESSING
+  SHIPPED
+  DELIVERED
+  CANCELLED
+  REFUNDED
+}
+
+enum ProductCategory {
+  coffee
+  drinks
+  brass
+}
+
+enum PaymentMethod {
+  CARD
+  PAYPAL
+  CASH_ON_DELIVERY
+}
+
+// ═══════════════════════════════════════
+//  USERS
+// ═══════════════════════════════════════
+
+model User {
+  id            String    @id @default(uuid())
+  email         String    @unique
+  passwordHash  String?   // null for OAuth users
+  firstName     String
+  lastName      String
+  phone         String?
+  role          Role      @default(CUSTOMER)
+  isVerified    Boolean   @default(false)
+  avatarUrl     String?
+
+  // OAuth
+  googleId      String?   @unique
+
+  // Relations
+  orders        Order[]
+  cartItems     CartItem[]
+  reviews       Review[]
+  chatSessions  ChatSession[]
+  addresses     Address[]
+  passwordResets PasswordReset[]
+
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("users")
+}
+
+model Address {
+  id         String  @id @default(uuid())
+  userId     String
+  user       User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  fullName   String
+  street     String
+  city       String
+  state      String?
+  zip        String
+  country    String  @default("US")
+  isDefault  Boolean @default(false)
+
+  orders     Order[]
+
+  createdAt  DateTime @default(now())
+
+  @@map("addresses")
+}
+
+model PasswordReset {
+  id        String   @id @default(uuid())
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  token     String   @unique
+  expiresAt DateTime
+  usedAt    DateTime?
+
+  createdAt DateTime @default(now())
+
+  @@map("password_resets")
+}
+
+// ═══════════════════════════════════════
+//  PRODUCTS
+// ═══════════════════════════════════════
+
+model Product {
+  id           String          @id @default(uuid())
+  name         String
+  slug         String          @unique
+  description  String
+  price        Decimal         @db.Decimal(10, 2)
+  stock        Int             @default(0)
+  category     ProductCategory
+  badge        String?         // "BESTSELLER", "NEW", "HOT", "PREMIUM"
+  isActive     Boolean         @default(true)
+  isFeatured   Boolean         @default(false)
+
+  // Images stored as JSON array of URLs
+  images       String[]        @default([])
+
+  // Aggregated from reviews
+  ratingAvg    Float           @default(0)
+  reviewCount  Int             @default(0)
+
+  // Relations
+  orderItems   OrderItem[]
+  cartItems    CartItem[]
+  reviews      Review[]
+
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+
+  @@index([category])
+  @@index([slug])
+  @@index([isActive, isFeatured])
+  @@map("products")
+}
+
+model Review {
+  id        String   @id @default(uuid())
+  productId String
+  product   Product  @relation(fields: [productId], references: [id], onDelete: Cascade)
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  rating    Int      // 1-5
+  comment   String?
+  isVerified Boolean @default(false) // purchased this product
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([productId, userId]) // one review per user per product
+  @@map("reviews")
+}
+
+// ═══════════════════════════════════════
+//  CART
+// ═══════════════════════════════════════
+
+model CartItem {
+  id        String  @id @default(uuid())
+  userId    String
+  user      User    @relation(fields: [userId], references: [id], onDelete: Cascade)
+  productId String
+  product   Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  qty       Int     @default(1)
+
+  // Selected options (size, roast level, etc.)
+  options   Json?   @default("{}")
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@unique([userId, productId]) // one row per product in cart
+  @@map("cart_items")
+}
+
+// ═══════════════════════════════════════
+//  ORDERS
+// ═══════════════════════════════════════
+
+model Order {
+  id              String        @id @default(uuid())
+  orderNumber     String        @unique // e.g. "GM-2026-0001"
+  userId          String
+  user            User          @relation(fields: [userId], references: [id])
+  addressId       String?
+  address         Address?      @relation(fields: [addressId], references: [id])
+
+  status          OrderStatus   @default(PENDING)
+  paymentMethod   PaymentMethod @default(CARD)
+
+  // Stripe payment intent ID
+  paymentIntentId String?       @unique
+  paidAt          DateTime?
+
+  // Pricing snapshot (in case prices change later)
+  subtotal        Decimal       @db.Decimal(10, 2)
+  shippingCost    Decimal       @db.Decimal(10, 2) @default(0)
+  discountAmount  Decimal       @db.Decimal(10, 2) @default(0)
+  total           Decimal       @db.Decimal(10, 2)
+
+  // Coupon used
+  couponId        String?
+  coupon          Coupon?       @relation(fields: [couponId], references: [id])
+
+  // Shipping info (copied from address at order time)
+  shippingName    String?
+  shippingStreet  String?
+  shippingCity    String?
+  shippingZip     String?
+  shippingCountry String?
+
+  notes           String?
+
+  items           OrderItem[]
+
+  createdAt       DateTime      @default(now())
+  updatedAt       DateTime      @updatedAt
+
+  @@index([userId])
+  @@index([status])
+  @@index([orderNumber])
+  @@map("orders")
+}
+
+model OrderItem {
+  id          String  @id @default(uuid())
+  orderId     String
+  order       Order   @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  productId   String
+  product     Product @relation(fields: [productId], references: [id])
+
+  // Snapshot at time of purchase
+  productName String
+  qty         Int
+  unitPrice   Decimal @db.Decimal(10, 2)
+  totalPrice  Decimal @db.Decimal(10, 2)
+
+  options     Json?   @default("{}")
+
+  @@map("order_items")
+}
+
+// ═══════════════════════════════════════
+//  COUPONS
+// ═══════════════════════════════════════
+
+model Coupon {
+  id              String    @id @default(uuid())
+  code            String    @unique
+  discountPercent Int       // 0-100
+  maxUses         Int?      // null = unlimited
+  usedCount       Int       @default(0)
+  minOrderValue   Decimal?  @db.Decimal(10, 2)
+  expiresAt       DateTime?
+  isActive        Boolean   @default(true)
+
+  orders          Order[]
+
+  createdAt       DateTime  @default(now())
+
+  @@map("coupons")
+}
+
+// ═══════════════════════════════════════
+//  CHAT (AI Assistant)
+// ═══════════════════════════════════════
+
+model ChatSession {
+  id        String   @id @default(uuid())
+  userId    String?  // null for anonymous users
+  user      User?    @relation(fields: [userId], references: [id], onDelete: SetNull)
+  sessionKey String  @unique // UUID stored in cookie for anonymous
+
+  // Full conversation history as JSON
+  messages  Json     @default("[]")
+  // Structure: [{ role: "user"|"assistant", content: "...", timestamp: "..." }]
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("chat_sessions")
+}
+
+// ═══════════════════════════════════════
+//  ADMIN / ANALYTICS
+// ═══════════════════════════════════════
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  userId    String?
+  action    String   // "product.created", "order.shipped", etc.
+  entity    String?  // "Product", "Order"
+  entityId  String?
+  metadata  Json?
+  ip        String?
+
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+  @@index([action])
+  @@map("audit_logs")
+}
