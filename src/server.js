@@ -20,13 +20,13 @@ const { connectRedis } = require("./config/redis");
 const { prisma } = require("./config/database");
 
 // ── Route Imports ────────────────────────────────
-const authRoutes = require("./routes/auth.routes");
+const authRoutes    = require("./routes/auth.routes");
 const productRoutes = require("./routes/product.routes");
-const cartRoutes = require("./routes/cart.routes");
-const orderRoutes = require("./routes/order.routes");
-const chatRoutes = require("./routes/chat.routes");
-const adminRoutes = require("./routes/admin.routes");
-const uploadRoutes = require("./routes/upload.routes");
+const cartRoutes    = require("./routes/cart.routes");
+const orderRoutes   = require("./routes/order.routes");
+const chatRoutes    = require("./routes/chat.routes");
+const adminRoutes   = require("./routes/admin.routes");
+const uploadRoutes  = require("./routes/upload.routes");
 const webhookRoutes = require("./routes/webhook.routes");
 const addressRoutes = require("./routes/address.routes"); // ✅ جديد
 
@@ -54,7 +54,7 @@ app.use(
         "http://localhost:3000",
         "http://127.0.0.1:5500",
         "http://127.0.0.1:3000",
-
+      
         "http://localhost:5500"
       ].filter(Boolean);
 
@@ -123,8 +123,8 @@ app.get("/health", async (req, res) => {
     });
   } catch (error) {
     console.error("Health check error:", error.message);
-    res.status(503).json({
-      status: "error",
+    res.status(503).json({ 
+      status: "error", 
       database: "disconnected",
       message: error.message
     });
@@ -132,13 +132,13 @@ app.get("/health", async (req, res) => {
 });
 
 // ── API Routes ────────────────────────────────────
-app.use(`${API_PREFIX}/auth`, authRoutes);
-app.use(`${API_PREFIX}/products`, productRoutes);
-app.use(`${API_PREFIX}/cart`, cartRoutes);
-app.use(`${API_PREFIX}/orders`, orderRoutes);
-app.use(`${API_PREFIX}/chat`, chatRoutes);
-app.use(`${API_PREFIX}/admin`, adminRoutes);
-app.use(`${API_PREFIX}/upload`, uploadRoutes);
+app.use(`${API_PREFIX}/auth`,      authRoutes);
+app.use(`${API_PREFIX}/products`,  productRoutes);
+app.use(`${API_PREFIX}/cart`,      cartRoutes);
+app.use(`${API_PREFIX}/orders`,    orderRoutes);
+app.use(`${API_PREFIX}/chat`,      chatRoutes);
+app.use(`${API_PREFIX}/admin`,     adminRoutes);
+app.use(`${API_PREFIX}/upload`,    uploadRoutes);
 app.use(`${API_PREFIX}/addresses`, addressRoutes); // ✅ جديد
 
 // ── 404 & Error Handlers ──────────────────────────
@@ -185,11 +185,6 @@ process.on("SIGINT", async () => {
 
 if (!process.env.VERCEL) {
   startServer();
-
-  // ── Unhandled Promise Rejection Handler ────────────────────────
-  process.on('unhandledRejection', (reason, promise) => {
-    logger.error('Unhandled Rejection at:', promise, 'reason:', reason);
-  });
 } else {
   // In Vercel, we export the app and let Vercel handle the initialization
   // Prisma will auto-connect on the first database query.
