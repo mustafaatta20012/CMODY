@@ -405,7 +405,7 @@ class APIClient {
 const api = new APIClient();
 
 function isAuthenticated() {
-  return !!localStorage.getItem("token");
+  return !!localStorage.getItem("gm_token");
 }
 
 let chatSessionKey = localStorage.getItem("chat_session_key");
