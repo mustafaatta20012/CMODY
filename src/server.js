@@ -50,14 +50,14 @@ app.use(
   cors({
     origin(origin, callback) {
       const allowed = [
-        process.env.CLIENT_URL,
-        "http://localhost:5173",
-        "http://localhost:3000",
-        "http://127.0.0.1:5500",
-        "http://127.0.0.1:3000",
-      
-        "http://localhost:5500"
-      ].filter(Boolean);
+  process.env.CLIENT_URL,
+  "http://localhost:5173",
+  "http://localhost:3000",
+  "http://127.0.0.1:5500",
+  "http://127.0.0.1:3000",
+  "http://localhost:5500",
+  "https://cmody.onrender.com",  // ← أضف هذا السطر
+].filter(Boolean);
 
       if (!origin || allowed.includes(origin)) {
         callback(null, true);
@@ -102,6 +102,18 @@ const globalLimiter = rateLimit({
   message: { success: false, error: "Too many requests, please try again later." },
 });
 app.use(API_PREFIX, globalLimiter);
+// ── Auth Rate Limiter ─────────────────────────────
+const authLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 دقيقة
+  max: 10,                   // 10 محاولات فقط كل 15 دقيقة
+  standardHeaders: true,
+  legacyHeaders: false,
+  message: { 
+    success: false, 
+    error: "Too many attempts, please try again after 15 minutes." 
+  },
+  skipSuccessfulRequests: true, // لا تحسب الطلبات الناجحة
+});
 
 // ── Static Files ──────────────────────────────────
 app.use("/uploads", express.static(path.join(__dirname, "../uploads")));
@@ -133,7 +145,7 @@ app.get("/health", async (req, res) => {
 });
 
 // ── API Routes ────────────────────────────────────
-app.use(`${API_PREFIX}/auth`,      authRoutes);
+app.use(`${API_PREFIX}/auth`, authLimiter, authRoutes);
 app.use(`${API_PREFIX}/products`,  productRoutes);
 app.use(`${API_PREFIX}/cart`,      cartRoutes);
 app.use(`${API_PREFIX}/orders`,    orderRoutes);
