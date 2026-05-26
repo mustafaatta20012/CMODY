@@ -451,6 +451,9 @@ function renderProducts(containerId, items) {
       quickAddToCart(btn.dataset.id, parseFloat(btn.dataset.price));
     });
   });
+  if (typeof applyVisualsToContainer === "function") {
+    applyVisualsToContainer(el);
+  }
 }
 
 function renderRelated(currentId, cat) {
@@ -502,6 +505,9 @@ function renderRelated(currentId, cat) {
       quickAddToCart(btn.dataset.id, parseFloat(btn.dataset.price));
     });
   });
+  if (typeof applyVisualsToContainer === "function") {
+    applyVisualsToContainer(el);
+  }
 }
 
 function renderSmallProducts() {
@@ -751,6 +757,9 @@ function renderSearchResults(results) {
       quickAddToCart(btn.dataset.id, parseFloat(btn.dataset.price));
     });
   });
+  if (typeof applyVisualsToContainer === "function") {
+    applyVisualsToContainer(grid);
+  }
 }
 
 function searchFilter(cat, btn) {
@@ -2296,6 +2305,9 @@ window.init = async function () {
   renderSmallProducts();
   updateAccountBtn();
   applySavedTheme();
+  if (typeof initPremiumVisuals === "function") {
+    initPremiumVisuals();
+  }
 };
 
 if (document.readyState === "loading") {
@@ -2321,4 +2333,216 @@ function closeAdminSidebar() {
   if (overlay) overlay.classList.remove("open");
   const toggle = document.getElementById("admin-sidebar-toggle");
   if (toggle) toggle.textContent = "☰";
+}
+
+/* ═══════════════ PREMIUM VISUAL EFFECTS ═══════════════ */
+function initPremiumVisuals() {
+  initGoldParticles();
+  initStatsCounter();
+  initScrollReveal();
+  initTiltEffect();
+}
+
+function initGoldParticles() {
+  if (document.getElementById('gold-particles-canvas')) return;
+  const canvas = document.createElement('canvas');
+  canvas.id = 'gold-particles-canvas';
+  canvas.style.position = 'fixed';
+  canvas.style.top = '0';
+  canvas.style.left = '0';
+  canvas.style.width = '100%';
+  canvas.style.height = '100%';
+  canvas.style.pointerEvents = 'none';
+  canvas.style.zIndex = '1';
+  canvas.style.opacity = '0.35';
+  document.body.appendChild(canvas);
+
+  const ctx = canvas.getContext('2d');
+  let width = canvas.width = window.innerWidth;
+  let height = canvas.height = window.innerHeight;
+
+  const particles = [];
+  const isMobile = window.matchMedia('(max-width: 768px)').matches;
+  const count = isMobile ? 15 : 35;
+
+  class Particle {
+    constructor() {
+      this.reset();
+    }
+    reset() {
+      this.x = Math.random() * width;
+      this.y = Math.random() * height + height;
+      this.size = Math.random() * 2.2 + 0.6;
+      this.speedY = -(Math.random() * 0.7 + 0.15);
+      this.speedX = Math.random() * 0.3 - 0.15;
+      this.opacity = Math.random() * 0.5 + 0.1;
+      this.fadeSpeed = Math.random() * 0.004 + 0.001;
+    }
+    update() {
+      this.y += this.speedY;
+      this.x += this.speedX;
+      this.opacity -= this.fadeSpeed;
+      if (this.y < 0 || this.opacity <= 0) {
+        this.reset();
+        this.y = height + 10;
+      }
+    }
+    draw() {
+      ctx.beginPath();
+      ctx.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+      ctx.fillStyle = `rgba(229, 199, 126, ${this.opacity})`;
+      ctx.shadowBlur = 4;
+      ctx.shadowColor = '#c9a84c';
+      ctx.fill();
+    }
+  }
+
+  for (let i = 0; i < count; i++) {
+    particles.push(new Particle());
+  }
+
+  function animate() {
+    ctx.clearRect(0, 0, width, height);
+    particles.forEach(p => {
+      p.update();
+      p.draw();
+    });
+    requestAnimationFrame(animate);
+  }
+
+  window.addEventListener('resize', () => {
+    width = canvas.width = window.innerWidth;
+    height = canvas.height = window.innerHeight;
+  });
+
+  animate();
+}
+
+function initStatsCounter() {
+  const stats = document.querySelectorAll('.about-hero-stat strong, .health-number');
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        const el = entry.target;
+        if (el.dataset.animated) return;
+        el.dataset.animated = 'true';
+        const originalText = el.textContent;
+        const matches = originalText.match(/(\d+)/);
+        if (!matches) return;
+        const targetValue = parseInt(matches[1], 10);
+        const suffix = originalText.replace(matches[1], '');
+        const prefix = originalText.substring(0, originalText.indexOf(matches[1]));
+
+        let start = 0;
+        const duration = 1500;
+        const startTime = performance.now();
+
+        function updateCounter(currentTime) {
+          const elapsed = currentTime - startTime;
+          const progress = Math.min(elapsed / duration, 1);
+          const ease = progress * (2 - progress);
+          const currentValue = Math.floor(ease * targetValue);
+          el.textContent = prefix + currentValue + suffix;
+
+          if (progress < 1) {
+            requestAnimationFrame(updateCounter);
+          } else {
+            el.textContent = originalText;
+          }
+        }
+        requestAnimationFrame(updateCounter);
+      }
+    });
+  }, { threshold: 0.1 });
+
+  stats.forEach(s => observer.observe(s));
+}
+
+function initScrollReveal() {
+  const elementsToReveal = document.querySelectorAll(
+    '.categories-section, .products-section .section-header, ' +
+    '.about-hero-title, .about-hero-sub, .about-section-title, .about-section-sub, ' +
+    '.story-grid, .video-wrap, .bean-card, .roast-card, .blend-card, .health-stat-card, .benefit-item, .kids-drink-card'
+  );
+
+  elementsToReveal.forEach(el => {
+    el.classList.add('reveal');
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.08 });
+
+  elementsToReveal.forEach(el => observer.observe(el));
+}
+
+function initTiltEffect() {
+  const cards = document.querySelectorAll('.bean-card, .kids-drink-card, .roast-card');
+  if (window.matchMedia('(pointer: fine)').matches) {
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((centerY - y) / centerY) * 6;
+        const rotateY = ((x - centerX) / centerX) * 6;
+
+        card.style.transform = `perspective(1000px) translateY(-5px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      });
+
+      card.style.transition = 'transform 0.15s ease-out, box-shadow 0.35s ease';
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+  }
+}
+
+function applyVisualsToContainer(container) {
+  const cards = container.querySelectorAll('.product-card');
+  
+  if (window.matchMedia('(pointer: fine)').matches) {
+    cards.forEach(card => {
+      card.addEventListener('mousemove', (e) => {
+        const rect = card.getBoundingClientRect();
+        const x = e.clientX - rect.left;
+        const y = e.clientY - rect.top;
+        const centerX = rect.width / 2;
+        const centerY = rect.height / 2;
+        const rotateX = ((centerY - y) / centerY) * 6;
+        const rotateY = ((x - centerX) / centerX) * 6;
+
+        card.style.transform = `perspective(1000px) translateY(-5px) rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+      });
+
+      card.style.transition = 'transform 0.15s ease-out, box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease';
+
+      card.addEventListener('mouseleave', () => {
+        card.style.transform = '';
+      });
+    });
+  }
+
+  cards.forEach(card => {
+    card.classList.add('reveal');
+  });
+
+  const observer = new IntersectionObserver((entries) => {
+    entries.forEach(entry => {
+      if (entry.isIntersecting) {
+        entry.target.classList.add('revealed');
+        observer.unobserve(entry.target);
+      }
+    });
+  }, { threshold: 0.05 });
+
+  cards.forEach(card => observer.observe(card));
 }

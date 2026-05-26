@@ -1338,14 +1338,14 @@
       padding: 0 24px;
       display: grid;
       grid-template-columns: repeat(6, 1fr);
-      gap: 14px;
+      gap: 20px;
     }
 
     .product-card {
-      background: rgba(255, 255, 255, 0.03);
+      background: rgba(31, 18, 0, 0.3);
       backdrop-filter: blur(24px);
       -webkit-backdrop-filter: blur(24px);
-      border: 1px solid rgba(201, 168, 76, 0.25);
+      border: 1px solid rgba(201, 168, 76, 0.18);
       border-top: 1px solid rgba(255, 255, 255, 0.08);
       border-left: 1px solid rgba(255, 255, 255, 0.05);
       border-radius: var(--radius);
@@ -1357,26 +1357,63 @@
       flex-direction: column;
       box-shadow:
         0 8px 32px rgba(0, 0, 0, 0.4),
-        inset 0 1px 0 rgba(255, 255, 255, 0.08),
-        inset 0 -1px 0 rgba(0, 0, 0, 0.2);
+        inset 0 1px 0 rgba(255, 255, 255, 0.05);
+    }
+
+    /* Premium bottom glow line on hover */
+    .product-card::before {
+      content: "";
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--gold), transparent);
+      opacity: 0;
+      transition: var(--transition);
+      z-index: 4;
+    }
+
+    /* Shine sweep animation on hover */
+    .product-card::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: -150%;
+      width: 50%;
+      height: 100%;
+      background: linear-gradient(
+        to right,
+        rgba(255, 255, 255, 0) 0%,
+        rgba(255, 255, 255, 0.12) 50%,
+        rgba(255, 255, 255, 0) 100%
+      );
+      transform: skewX(-25deg);
+      z-index: 3;
+      pointer-events: none;
     }
 
     .product-card:hover {
-      background: rgba(255, 255, 255, 0.06);
-      border-color: rgba(201, 168, 76, 0.55);
-      transform: translateY(-4px);
+      background: rgba(31, 18, 0, 0.5);
+      border-color: rgba(201, 168, 76, 0.5);
+      transform: translateY(-5px);
       box-shadow:
-        0 20px 50px rgba(0, 0, 0, 0.6),
-        inset 0 1px 0 rgba(255, 255, 255, 0.12),
-        0 0 30px rgba(201, 168, 76, 0.15);
+        0 20px 45px rgba(0, 0, 0, 0.65),
+        0 0 25px rgba(201, 168, 76, 0.18);
     }
 
-    .product-info {
-      padding: 12px;
-      flex: 1;
-      background: rgba(0, 0, 0, 0.15);
-      backdrop-filter: blur(8px);
-      -webkit-backdrop-filter: blur(8px);
+    .product-card:hover::before {
+      opacity: 1;
+    }
+
+    .product-card:hover::after {
+      animation: shineSweep 0.85s ease;
+    }
+
+    @keyframes shineSweep {
+      100% {
+        left: 200%;
+      }
     }
 
     .product-img {
@@ -1392,33 +1429,78 @@
       border-radius: var(--radius) var(--radius) 0 0;
     }
 
+    /* Golden overlay on product images */
+    .product-img::after {
+      content: "";
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to bottom, transparent 65%, rgba(13, 7, 0, 0.5) 100%);
+      z-index: 1;
+      pointer-events: none;
+      transition: var(--transition);
+    }
+
+    .product-card:hover .product-img::after {
+      background: linear-gradient(to bottom, rgba(201, 168, 76, 0.04) 0%, rgba(13, 7, 0, 0.75) 100%);
+    }
+
+    .product-img img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+
+    .product-card:hover .product-img img {
+      transform: scale(1.08);
+    }
+
     .product-badge {
       position: absolute;
-      top: 9px;
-      left: 9px;
-      background: var(--gold);
-      color: var(--brown-deep);
+      top: 10px;
+      left: 10px;
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold-dark) 100%);
+      color: #1a0e00;
       font-size: 9px;
-      font-weight: 800;
-      padding: 3px 7px;
-      border-radius: 3px;
-      letter-spacing: 0.5px;
+      font-weight: 900;
+      padding: 4px 10px;
+      border-radius: 4px;
+      letter-spacing: 0.8px;
+      box-shadow: 0 4px 12px rgba(201, 168, 76, 0.35);
       z-index: 2;
     }
 
+    .product-info {
+      padding: 16px 14px;
+      flex: 1;
+      background: linear-gradient(to bottom, rgba(31, 18, 0, 0.85) 0%, rgba(13, 7, 0, 0.98) 100%);
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+    }
+
     .product-info h4 {
-      font-size: 12px;
-      font-weight: 500;
+      font-size: 13px;
+      font-weight: 600;
       color: var(--text-primary);
-      margin-bottom: 5px;
-      line-height: 1.35;
+      margin-bottom: 0;
+      line-height: 1.4;
+      letter-spacing: 0.2px;
+      transition: var(--transition);
+    }
+
+    .product-card:hover .product-info h4 {
+      color: var(--gold-light);
     }
 
     .product-price {
-      font-size: 14px;
-      font-weight: 700;
-      color: var(--gold);
-      margin-bottom: 6px;
+      font-size: 16px;
+      font-weight: 800;
+      background: linear-gradient(135deg, var(--gold-light) 0%, var(--gold) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      margin-bottom: 0;
+      font-family: 'Playfair Display', serif;
     }
 
     .product-rating {
@@ -4103,14 +4185,14 @@
       }
 
       .products-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 6px;
-        padding: 0 10px;
+        grid-template-columns: 1fr;
+        gap: 18px;
+        padding: 0 16px;
       }
 
       .products-page-grid {
         grid-template-columns: 1fr;
-        gap: 10px;
+        gap: 16px;
       }
 
       .stats-grid {
@@ -4118,13 +4200,13 @@
       }
 
       .cat-grid {
-        grid-template-columns: 1fr 1fr;
-        gap: 10px;
+        grid-template-columns: 1fr;
+        gap: 16px;
       }
 
       .cat-card-img {
-        width: 90px;
-        height: 80px;
+        width: 100%;
+        height: 100%;
       }
 
       .hero-text h1 {
@@ -4634,6 +4716,22 @@
     body.rtl-mode .footer-inner {
       text-align: right;
     }
+
+    /* ── REVEAL ANIMATIONS ── */
+    .reveal {
+      opacity: 0;
+      transform: translateY(25px);
+      transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1), transform 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    .reveal.revealed {
+      opacity: 1;
+      transform: translateY(0);
+    }
+    
+    /* Smooth transitions for interactive elements */
+    .product-card, .bean-card, .kids-drink-card, .roast-card {
+      transition: transform 0.15s ease-out, box-shadow 0.35s ease, border-color 0.35s ease, background 0.35s ease;
+    }
   </style>
 </head>
 
@@ -4842,7 +4940,7 @@
       <div class="cat-grid">
         <div class="cat-card" onclick="showPage('coffee')">
           <div class="cat-card-img" style="overflow: hidden; padding: 0">
-            <img src="imagesCoffe/luxury_coffee_bag2.png" style="width: 100%; height: 100%; object-fit: cover">
+            <img src="imagesCoffe/luxury_coffee_bag2.png" loading="lazy" style="width: 100%; height: 100%; object-fit: cover">
           </div>
           <div class="cat-card-text">
             <h3>Coffee Products</h3>
@@ -4854,7 +4952,7 @@
         </div>
         <div class="cat-card" onclick="showPage('drinks')">
           <div class="cat-card-img" style="overflow: hidden; padding: 0">
-            <img src="imagesCoffe/iced_mocha2.png" style="width: 100%; height: 100%; object-fit: cover">
+            <img src="imagesCoffe/iced_mocha2.png" loading="lazy" style="width: 100%; height: 100%; object-fit: cover">
           </div>
           <div class="cat-card-text">
             <h3>Takeaway Drinks</h3>
@@ -4864,7 +4962,7 @@
         </div>
         <div class="cat-card" onclick="showPage('brass')">
           <div class="cat-card-img" style="overflow: hidden; padding: 0">
-            <img src="imagesCoffe/red_cold_drink2.png" style="width: 100%; height: 100%; object-fit: cover">
+            <img src="imagesCoffe/red_cold_drink2.png" loading="lazy" style="width: 100%; height: 100%; object-fit: cover">
           </div>
           <div class="cat-card-text">
             <h3>Brass Collection</h3>
@@ -5753,7 +5851,7 @@
           </div>
 
           <div class="story-img-wrap">
-            <img src="imagesCoffe/indoor_cafe.png" alt="CMODY Cafe">
+            <img src="imagesCoffe/indoor_cafe.png" loading="lazy" alt="CMODY Cafe">
             <div class="story-img-overlay">
               <div class="story-img-label">CMODY — Since 2018</div>
             </div>
@@ -5769,9 +5867,8 @@
           <div class="col-lg-7">
             <div class="video-wrap">
               <span class="video-label">☕ Coffee World</span>
-              <span class="video-label">☕ Coffee World</span>
               <video src="imagesCoffe/childcoffee.mp4" controls
-                style="width:100%; height:420px; object-fit:cover; display:block;"></video>
+                style="width:100%; aspect-ratio:16/9; max-height:420px; object-fit:cover; display:block;"></video>
             </div>
           </div>
           <div class="col-lg-5">
@@ -5785,19 +5882,19 @@
               after water.
             </p>
             <div class="row g-3">
-              <div class="col-4">
+              <div class="col-12 col-sm-4">
                 <div class="health-stat-card">
                   <div class="health-number">+60</div>
                   <div class="health-label">Coffee Types</div>
                 </div>
               </div>
-              <div class="col-4">
+              <div class="col-12 col-sm-4">
                 <div class="health-stat-card">
                   <div class="health-number">18°</div>
                   <div class="health-label">Roast Profile</div>
                 </div>
               </div>
-              <div class="col-4">
+              <div class="col-12 col-sm-4">
                 <div class="health-stat-card">
                   <div class="health-number">∞</div>
                   <div class="health-label">Blends</div>
@@ -5825,7 +5922,7 @@
         <div class="row g-4">
           <div class="col-md-6 col-xl-3">
             <div class="bean-card">
-              <img src="imagesCoffe/spinning_coffee_cup.png" class="bean-card-img" alt="Arabica">
+              <img src="imagesCoffe/spinning_coffee_cup.png" loading="lazy" class="bean-card-img" alt="Arabica">
               <div class="bean-card-body">
                 <span class="bean-tag">60% of Global Production</span>
                 <h4 class="bean-card-title">Arabica Coffee</h4>
@@ -5838,7 +5935,7 @@
           </div>
           <div class="col-md-6 col-xl-3">
             <div class="bean-card">
-              <img src="imagesCoffe/iced_black_coffee.png" class="bean-card-img" alt="Robusta">
+              <img src="imagesCoffe/iced_black_coffee.png" loading="lazy" class="bean-card-img" alt="Robusta">
               <div class="bean-card-body">
                 <span class="bean-tag">Secret of Golden Crema</span>
                 <h4 class="bean-card-title">Robusta Coffee</h4>
@@ -5851,7 +5948,7 @@
           </div>
           <div class="col-md-6 col-xl-3">
             <div class="bean-card">
-              <img src="imagesCoffe/luxury_coffee_bags.png" class="bean-card-img" alt="Yirgacheffe">
+              <img src="imagesCoffe/luxury_coffee_bags.png" loading="lazy" class="bean-card-img" alt="Yirgacheffe">
               <div class="bean-card-body">
                 <span class="bean-tag">Specialty • Single Origin</span>
                 <h4 class="bean-card-title">Ethiopian Yirgacheffe</h4>
@@ -5864,7 +5961,7 @@
           </div>
           <div class="col-md-6 col-xl-3">
             <div class="bean-card">
-              <img src="imagesCoffe/luxury_coffee_bag2.png" class="bean-card-img" alt="Yemeni">
+              <img src="imagesCoffe/luxury_coffee_bag2.png" loading="lazy" class="bean-card-img" alt="Yemeni">
               <div class="bean-card-body">
                 <span class="bean-tag">Origin of Coffee • Heritage</span>
                 <h4 class="bean-card-title">Yemeni Coffee</h4>
@@ -6275,7 +6372,7 @@
             <div class="video-wrap mb-4">
               <span class="video-label">Kids Safe Drinks</span>
               <video src="imagesCoffe/drinkcoffe.mp4" controls
-                style="width:100%; height:420px; object-fit:cover; display:block;"></video>
+                style="width:100%; aspect-ratio:16/9; max-height:420px; object-fit:cover; display:block;"></video>
             </div>
             <div class="crema-tip">
               <div>
@@ -6291,7 +6388,7 @@
             <div class="row g-3">
               <div class="col-sm-6">
                 <div class="kids-drink-card">
-                  <img src="imagesCoffe/latte_art_cup.png" class="kids-drink-img" alt="Babyccino">
+                  <img src="imagesCoffe/latte_art_cup.png" loading="lazy" class="kids-drink-img" alt="Babyccino">
                   <span class="kids-badge">KIDS SAFE</span>
                   <div class="kids-drink-body">
                     <span class="kids-age-badge">Ages 4+</span>
@@ -6305,7 +6402,7 @@
               </div>
               <div class="col-sm-6">
                 <div class="kids-drink-card">
-                  <img src="imagesCoffe/pink_drink.png" class="kids-drink-img" alt="Hazelnut">
+                  <img src="imagesCoffe/pink_drink.png" loading="lazy" class="kids-drink-img" alt="Hazelnut">
                   <span class="kids-badge">KIDS SAFE</span>
                   <div class="kids-drink-body">
                     <span class="kids-age-badge">Ages 5+</span>
@@ -6318,7 +6415,7 @@
               </div>
               <div class="col-sm-6">
                 <div class="kids-drink-card">
-                  <img src="imagesCoffe/iced_orange_juice.png" class="kids-drink-img" alt="Matcha">
+                  <img src="imagesCoffe/iced_orange_juice.png" loading="lazy" class="kids-drink-img" alt="Matcha">
                   <span class="kids-badge">KIDS SAFE</span>
                   <div class="kids-drink-body">
                     <span class="kids-age-badge">Ages 3+</span>
@@ -6331,7 +6428,7 @@
               </div>
               <div class="col-sm-6">
                 <div class="kids-drink-card">
-                  <img src="imagesCoffe/red_cold_drink2.png" class="kids-drink-img" alt="Caramel">
+                  <img src="imagesCoffe/red_cold_drink2.png" loading="lazy" class="kids-drink-img" alt="Caramel">
                   <span class="kids-badge">KIDS SAFE</span>
                   <div class="kids-drink-body">
                     <span class="kids-age-badge">Ages 4+</span>

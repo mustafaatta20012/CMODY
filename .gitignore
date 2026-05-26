@@ -11,3 +11,4 @@ server/firebase/serviceAccountKey.json
 !package.json
 !package-lock.json
 .vercel/
+frontend/imagesCoffe/originals/
